@@ -1,0 +1,3 @@
+[submodule "vendor/janet"]
+	path = vendor/janet
+	url = git@github.com:janet-lang/janet.git
