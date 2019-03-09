@@ -48,17 +48,23 @@ mod test {
             assert_eq!(janet_dostring(janet_core_env(null_mut()), source.as_ptr(), file.as_ptr(), &mut fiber_1), 0);
             assert_eq!(janet_sys_type(fiber_1), JanetType_JANET_FIBER);
 
+            let mut res_1 = janet_sys_wrap_nil();
+            assert_eq!(janet_continue(janet_sys_unwrap_fiber(fiber_1), janet_sys_wrap_nil(), &mut res_1), JanetSignal_JANET_SIGNAL_YIELD);
+
             let buf = janet_buffer(1024);
             janet_marshal(buf, fiber_1, null_mut(), 0);
             assert!((*buf).count != 0);
             let fiber_2 = janet_unmarshal((*buf).data, (*buf).count as usize, 0, null_mut(), null_mut());
             janet_buffer_deinit(buf);
 
-            let mut res_1 = janet_sys_wrap_nil();
-            assert_eq!(janet_continue(janet_sys_unwrap_fiber(fiber_1), janet_sys_wrap_nil(), &mut res_1), JanetSignal_JANET_SIGNAL_YIELD);
-            let mut res_2 = janet_sys_wrap_nil();
-            assert_eq!(janet_continue(janet_sys_unwrap_fiber(fiber_2), janet_sys_wrap_nil(), &mut res_2), JanetSignal_JANET_SIGNAL_YIELD);
-            assert_eq!(janet_equals(res_1, res_2), 1);
+            for i in 1..3 {
+                let sig = if i < 2 { JanetSignal_JANET_SIGNAL_YIELD } else { JanetSignal_JANET_SIGNAL_OK };
+                let mut res_1 = janet_sys_wrap_nil();
+                assert_eq!(janet_continue(janet_sys_unwrap_fiber(fiber_1), janet_sys_wrap_nil(), &mut res_1), sig);
+                let mut res_2 = janet_sys_wrap_nil();
+                assert_eq!(janet_continue(janet_sys_unwrap_fiber(fiber_2), janet_sys_wrap_nil(), &mut res_2), sig);
+                assert_eq!(janet_equals(res_1, res_2), 1);
+            }
         }
     }
 }
