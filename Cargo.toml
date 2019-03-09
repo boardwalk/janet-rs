@@ -1,11 +1,2 @@
-[package]
-name = "janet-sys"
-version = "0.4.1"
-authors = ["Dan Skorupski <boardwalk@ersatsz.com>"]
-edition = "2018"
-
-[dependencies]
-
-[build-dependencies]
-bindgen = "0.42.2"
-cc = "1.0"
+[workspace]
+members = ["janet-sys"]
